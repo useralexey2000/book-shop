@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bookserv-configmap
+data:
+  postgres-host: "pgpool-svc"
+  postgres-port: "5432"

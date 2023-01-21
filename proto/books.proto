@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package books;
+
+option go_package = "./pb";
+
+message Author {
+    string ID = 1;
+    string Name = 2;
+}
+
+message Book {
+    string ID = 1;
+    string Name = 2;
+    Author Author = 3;
+}
+
+message CreateBookRequest {
+    string Name = 1;
+    string AuthorName = 2;
+}
+
+message CreateBookResponse {
+    Book Book = 1;
+}
+
+message ListBooksRequest {
+    int64 Limit = 1;
+    int64 Offset = 2;
+}
+
+message ListBooksResponse {
+    repeated Book Books = 1;
+}
+
+service BookService {
+    rpc CreateBook(CreateBookRequest)returns(CreateBookResponse){}
+    rpc ListBooks(ListBooksRequest)returns(ListBooksResponse){}
+}
+
+

@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: book-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      app: bookserv
+  template:
+    metadata:
+      labels: 
+        app: bookserv
+    spec:
+      containers:
+        - name: bookserv
+          image: alex/bookserv:1.0.0
+          imagePullPolicy: "IfNotPresent"
+          env:
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: bookserv-configmap
+                  key: postgres-host
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: bookserv-configmap
+                  key: postgres-port
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-configmap
+                  key: postgres-db-name
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key:  postgresql-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: postgresql-password      
+          ports:
+            - name: bookserv
+              containerPort: 9000
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookserv-svc
+spec:
+  type: ClusterIP
+  ports:
+    - name: bookserv
+      port: 9000
+      targetPort: bookserv
+      protocol: TCP
+  selector:
+    app: bookserv
