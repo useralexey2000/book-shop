@@ -1,7 +1,6 @@
-package main
+package gw
 
 import (
-	"book-shop/infra"
 	"book-shop/mapper"
 	"book-shop/proto/pb"
 	"encoding/json"
@@ -10,12 +9,12 @@ import (
 )
 
 type Gateway struct {
-	service *infra.LibraryService
+	client pb.BookServiceClient
 }
 
-func New(s *infra.LibraryService) *Gateway {
+func New(c pb.BookServiceClient) *Gateway {
 	return &Gateway{
-		service: s,
+		client: c,
 	}
 }
 
@@ -32,7 +31,7 @@ func (g *Gateway) CreateBook() http.HandlerFunc {
 			return
 		}
 
-		res, err := g.service.CreateBook(r.Context(), &pb.CreateBookRequest{
+		res, err := g.client.CreateBook(r.Context(), &pb.CreateBookRequest{
 			Name:       req.Name,
 			AuthorName: req.AuthorName,
 		})
@@ -50,8 +49,8 @@ func (g *Gateway) ListBooks() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		type Req struct {
-			Limit  int64
-			Offset int64
+			Limit  int64 `json:"limit"`
+			Offset int64 `json:"offset"`
 		}
 
 		var req Req
@@ -60,7 +59,7 @@ func (g *Gateway) ListBooks() http.HandlerFunc {
 			return
 		}
 
-		pb, err := g.service.ListBooks(r.Context(), &pb.ListBooksRequest{
+		res, err := g.client.ListBooks(r.Context(), &pb.ListBooksRequest{
 			Limit:  req.Limit,
 			Offset: req.Offset,
 		})
@@ -70,7 +69,7 @@ func (g *Gateway) ListBooks() http.HandlerFunc {
 			return
 		}
 
-		books := mapper.ProtoToListBook(pb.Books)
+		books := mapper.ProtoToListBook(res.Books)
 		JSONResponse(w, books, http.StatusOK)
 	}
 }

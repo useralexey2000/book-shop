@@ -13,6 +13,7 @@ spec:
         app: bookserv
     spec:
       containers:
+      #  grpc service
         - name: bookserv
           image: alex/bookserv:1.0.0
           imagePullPolicy: "IfNotPresent"
@@ -46,6 +47,23 @@ spec:
             - name: bookserv
               containerPort: 9000
               protocol: TCP
+              
+        # gateway for grpc service
+        - name: bookservgw
+          image: alex/bookservgw:1.0.0
+          imagePullPolicy: "IfNotPresent"
+          env:
+            - name: GW_HOST
+              value: "0.0.0.0"
+            - name: GRPC_HOST
+              value: "localhost"
+            - name: GRPC_PORT
+              value: "9000"
+          ports:
+            - name: bookservgw
+              containerPort: 8080
+              protocol: TCP
+
 ---
 apiVersion: v1
 kind: Service
@@ -57,6 +75,10 @@ spec:
     - name: bookserv
       port: 9000
       targetPort: bookserv
+      protocol: TCP
+    - name: bookservgw
+      port: 8080
+      targetPort: bookservgw
       protocol: TCP
   selector:
     app: bookserv

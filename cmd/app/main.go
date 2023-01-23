@@ -14,11 +14,14 @@ import (
 )
 
 // /docker-entrypoint-initdb.d
+// BOOKSERV_SVC_SERVICE_PORT_BOOKSERV=9000
+// BOOKSERV_SVC_SERVICE_PORT_BOOKSERVGW=8080
 
 var (
-	// host             = "0.0.0.0"
-	host             = ""
-	port             = os.Getenv("BOOKSERV_SVC_SERVICE_PORT")
+	// host = ""
+	// port = os.Getenv("BOOKSERV_SVC_SERVICE_PORT")
+	host             = "0.0.0.0"
+	port             = os.Getenv("BOOKSERV_SVC_SERVICE_PORT_BOOKSERV")
 	postgresHost     = os.Getenv("POSTGRES_HOST")
 	postgresPort     = os.Getenv("POSTGRES_PORT")
 	postgresDBName   = os.Getenv("POSTGRES_DB")
@@ -74,7 +77,7 @@ func main() {
 
 	fmt.Println("grpc books service registered")
 
-	fmt.Printf("starting books service, port: ß%v, host: %v", port, host)
+	fmt.Printf("starting books service, port: %v, host: %v", port, host)
 	if err = s.Serve(ls); err != nil {
 		panic(fmt.Sprintf("cant serve grpc, %v", err))
 	}

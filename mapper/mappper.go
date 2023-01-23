@@ -26,7 +26,7 @@ func ProtoToBook(b *pb.Book) *domain.Book {
 }
 
 func BookListToProto(bs []*domain.Book) []*pb.Book {
-	books := make([]*pb.Book, len(bs))
+	books := make([]*pb.Book, 0, len(bs))
 
 	for _, v := range bs {
 		b := BookToProto(v)
@@ -37,7 +37,7 @@ func BookListToProto(bs []*domain.Book) []*pb.Book {
 }
 
 func ProtoToListBook(bs []*pb.Book) []*domain.Book {
-	books := make([]*domain.Book, len(bs))
+	books := make([]*domain.Book, 0, len(bs))
 
 	for _, v := range bs {
 		b := ProtoToBook(v)

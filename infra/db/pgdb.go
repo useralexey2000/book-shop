@@ -81,12 +81,18 @@ func (r *PostgresRepo) GetBook(ctx context.Context, name string) (*domain.Book, 
 
 func (r *PostgresRepo) ListBooks(ctx context.Context, limit, offset int64) ([]*domain.Book, error) {
 	sql := `SELECT books.id, books.name, authors.name 
-	FROM books LEFT JOIN authors ON books.author_id = authors.id LIMIT $1 offset $2`
+	FROM books LEFT JOIN authors ON books.author_id = authors.id limit $1 offset $2`
 
 	rws, err := r.db.Query(ctx, sql, limit, offset)
 	if err != nil {
 		return nil, err
 	}
+
+	defer func() {
+		if rws != nil {
+			rws.Close()
+		}
+	}()
 
 	var books []*domain.Book
 	for rws.Next() {
