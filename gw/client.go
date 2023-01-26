@@ -22,8 +22,8 @@ func (g *Gateway) CreateBook() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		type Req struct {
-			Name       string
-			AuthorName string
+			Name       string `json:"name"`
+			AuthorName string `json:"author_name"`
 		}
 
 		var req Req
