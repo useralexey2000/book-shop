@@ -42,12 +42,19 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: postgres-secrets
-                  key: postgresql-password      
+                  key: postgresql-password    
           ports:
             - name: bookserv
               containerPort: 9000
               protocol: TCP
-              
+          resources:
+            requests:
+              cpu: 50m
+              # memory: 4Mi
+            limits: 
+              cpu: 1
+              # memory: 20Mi
+
         # gateway for grpc service
         - name: bookservgw
           image: alex/bookservgw:1.0.0
@@ -82,3 +89,38 @@ spec:
       protocol: TCP
   selector:
     app: bookserv
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: book-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: book-deployment
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: ContainerResource
+    containerResource:
+      name: cpu
+      container: bookserv
+      target:
+        type: Utilization
+        averageUtilization: 50
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+      selectPolicy: Max
