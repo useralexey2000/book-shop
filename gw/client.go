@@ -28,6 +28,8 @@ func (g *Gateway) CreateBook() http.HandlerFunc {
 
 		var req Req
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			fmt.Println("err create book.jsondecode: ", err)
+			JSONResponse(w, err, http.StatusInternalServerError)
 			return
 		}
 
@@ -37,6 +39,7 @@ func (g *Gateway) CreateBook() http.HandlerFunc {
 		})
 
 		if err != nil {
+			fmt.Println("err create book.grpcreq: ", err)
 			JSONResponse(w, err, http.StatusInternalServerError)
 			return
 		}
@@ -48,6 +51,8 @@ func (g *Gateway) CreateBook() http.HandlerFunc {
 func (g *Gateway) ListBooks() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		fmt.Println("in gw.listbooks")
+
 		type Req struct {
 			Limit  int64 `json:"limit"`
 			Offset int64 `json:"offset"`
@@ -55,6 +60,7 @@ func (g *Gateway) ListBooks() http.HandlerFunc {
 
 		var req Req
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			fmt.Println("err create book.jsondecode: ", err)
 			JSONResponse(w, err, http.StatusInternalServerError)
 			return
 		}
@@ -65,6 +71,7 @@ func (g *Gateway) ListBooks() http.HandlerFunc {
 		})
 
 		if err != nil {
+			fmt.Println("err list book.grpcreq: ", err)
 			JSONResponse(w, err, http.StatusInternalServerError)
 			return
 		}

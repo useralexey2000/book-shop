@@ -25,6 +25,10 @@ func NewPostgresRepo(cfg *pgxpool.Config) (*PostgresRepo, error) {
 		return nil, err
 	}
 
+	if err := db.Ping(context.Background()); err != nil {
+		return nil, err
+	}
+
 	return &PostgresRepo{db: db}, nil
 }
 
@@ -112,4 +116,8 @@ func (r *PostgresRepo) ListBooks(ctx context.Context, limit, offset int64) ([]*d
 func (r *PostgresRepo) DeleteBook(ctx context.Context, id string) error { panic("not implem") }
 func (r *PostgresRepo) UpdateBook(ctx context.Context, b domain.Book) (*domain.Book, error) {
 	panic("not implem")
+}
+
+func (r *PostgresRepo) Close() {
+	r.db.Close()
 }

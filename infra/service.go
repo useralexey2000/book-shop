@@ -5,6 +5,7 @@ import (
 	"book-shop/mapper"
 	"book-shop/proto/pb"
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -33,6 +34,7 @@ func (l *LibraryService) CreateBook(
 
 	b, err := l.bookRepo.CreateBook(ctx, book)
 	if err != nil {
+		fmt.Println("err createbook.reporeq: ", err)
 		return &pb.CreateBookResponse{}, err
 	}
 
@@ -45,6 +47,7 @@ func (l *LibraryService) ListBooks(
 
 	books, err := l.bookRepo.ListBooks(ctx, req.Limit, req.Offset)
 	if err != nil {
+		fmt.Println("err listbooks.reporeq: ", err)
 		return &pb.ListBooksResponse{}, err
 	}
 

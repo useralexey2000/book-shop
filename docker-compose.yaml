@@ -1,0 +1,68 @@
+version: '3'
+
+services:
+
+  bookdb:
+    image: postgres
+    container_name: book_db
+    environment:
+      POSTGRES_HOST: "0.0.0.0"
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d
+      # - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - booknet
+    ports:
+      - "5432:5432"
+
+  bookserv:
+    container_name: bookserv
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      BOOKSERV_HOST: "0.0.0.0"
+      BOOKSERV_SVC_SERVICE_PORT_BOOKSERV: 9000
+      POSTGRES_HOST: bookdb
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    depends_on:
+      bookdb:
+        condition: service_healthy
+    networks:
+      - booknet
+    ports:
+      - "9000:9000"
+
+  bookservgw:
+    container_name: bookservgw
+    build:
+      context: .
+      dockerfile: ./gw.Dockerfile
+    environment:
+      GW_HOST: "0.0.0.0"
+      BOOKSERV_SVC_SERVICE_PORT_BOOKSERVGW: 8080
+      GRPC_HOST: bookserv
+      GRPC_PORT: 9000  
+    depends_on:
+      - bookserv
+    networks:
+      - booknet
+    ports:
+      - "8080:8080"
+
+networks:
+  booknet:
+    driver: bridge

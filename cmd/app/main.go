@@ -20,7 +20,7 @@ import (
 var (
 	// host = ""
 	// port = os.Getenv("BOOKSERV_SVC_SERVICE_PORT")
-	host             = "0.0.0.0"
+	host             = os.Getenv("BOOKSERV_HOST")
 	port             = os.Getenv("BOOKSERV_SVC_SERVICE_PORT_BOOKSERV")
 	postgresHost     = os.Getenv("POSTGRES_HOST")
 	postgresPort     = os.Getenv("POSTGRES_PORT")
@@ -56,6 +56,7 @@ func main() {
 	fmt.Println("db config parsed", cfg.ConnString())
 
 	repo, err := db.NewPostgresRepo(cfg)
+	defer repo.Close()
 	if err != nil {
 		panic(fmt.Sprintf("cant init repo, %v", err))
 	}
